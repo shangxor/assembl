@@ -3229,6 +3229,9 @@ def remove_server_from_uptime_robot():
         print(red("No Uptime Robot API key has been set for this server. Cannot progress any further..."))
         exit(1)
     location = join(env.projectpath, '.monitor_id')
+    if not exists(location):
+        print(red("The monitor id was not found. Cannot progress any further..."))
+        exit(1)
     monitor_id = run('cat %s' % location)
     if not monitor_id:
         print(red("No monitor id was found for this server. Quitting..."))
