@@ -207,6 +207,7 @@ def sanitize_env():
         env.projectpath, '%s_dumps' % env.get("projectname", 'assembl')))
     env.ini_file = env.get('ini_file', 'local.ini')
     env.group = env.get('group', env.user)
+    env.require_secure_connection = env.get('require_secure_connection', True)  # default behaviour
     populate_secrets()
 
 
@@ -1676,6 +1677,7 @@ def install_server_deps():
     """
     execute(install_fail2ban)
     execute(install_jq)
+    execute(add_server_to_uptime_robot)
 
 
 @task
@@ -3166,3 +3168,87 @@ def install_jq():
             run('brew install jq')
         else:
             sudo('apt-get install -y jq')
+
+
+def _curl_headers(headers):
+    response = []
+    for h, v in headers.iteritems():
+        response.append('-H "%s: %s"' % (h, v))
+    return ' '.join(response)
+
+
+@task
+def add_server_to_uptime_robot():
+    from urllib import urlencode
+    import json
+    api_key = env.get('uptime_robot_api_key', None)
+    if not api_key:
+        print(red("No Uptime Robot API key has been set for this server. Cannot progress any further..."))
+        exit(1)
+    monitor_name = env.get('public_hostname')
+    headers = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    scheme = 'https' if as_bool(env.get('require_secure_connection', False)) or \
+        as_bool(env.get('accept_secure_connection', False)) else 'http'
+    url = scheme + "://" + env.get('public_hostname')
+    data = urlencode({
+        'api_key': api_key,
+        'format': 'json',
+        'type': '1',
+        'url': url,
+        'friendly_name': monitor_name
+    })
+    resp = local("""curl -X POST {headers} -d "{data}" "https://api.uptimerobot.com/v2/newMonitor" """.format(
+        headers=_curl_headers(headers),
+        data=data),
+        capture=True
+    )
+    if resp.failed:
+        print(red("Failed to create a monitor for %s" % url))
+    else:
+        resp_data = json.loads(resp)
+        if resp_data.get('stat') != u'ok':
+            print(red('API attempt to create monitor was made. However, the monitor was not created.\nResult: %s' % resp))
+        else:
+            monitor_id = resp_data['monitor']['id']
+            location = join(env.projectpath, '.monitor_id')
+            run('echo "%s" > %s' % (monitor_id, location))
+            print(green("Monitor successfully created for %s with id: %s" % (url, monitor_id)))
+
+
+@task
+def remove_server_from_uptime_robot():
+    from urllib import urlencode
+    import json
+    api_key = env.get('uptime_robot_api_key', None)
+    if not api_key:
+        print(red("No Uptime Robot API key has been set for this server. Cannot progress any further..."))
+        exit(1)
+    location = join(env.projectpath, '.monitor_id')
+    monitor_id = run('cat %s' % location)
+    if not monitor_id:
+        print(red("No monitor id was found for this server. Quitting..."))
+        exit(1)
+    headers = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    data = {
+        'api_key': api_key,
+        'id': monitor_id
+    }
+    resp = local('curl -X POST {headers} -d "{data}" "https://api.uptimerobot.com/v2/deleteMonitor"'.format(
+        headers=_curl_headers(headers),
+        data=urlencode(data)), capture=True)
+    if resp.failed:
+        print(red("Failed to delete the monitor for %s" % env.projectpath))
+    else:
+        d = json.loads(resp)
+        if d.get('stat') != 'ok':
+            print(red("API attempt to delete monitor was made. However, the monitor was not deleted.\nResult: %s" % resp))
+        else:
+            run('rm -f %s' % location)
+            print(green("The monitor was successfully deleted"))

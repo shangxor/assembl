@@ -114,6 +114,9 @@ _package_install = false
 # bugherd_url
 # bugherd_key
 # wsginame
+#
+# For servers to be monitored by Uptime Robot
+# _uptime_robot_api_key
 
 # Optional - Path to SSL Stapling certificates, must be single file
 # on server
