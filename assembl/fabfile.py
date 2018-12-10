@@ -1677,7 +1677,8 @@ def install_server_deps():
     """
     execute(install_fail2ban)
     execute(install_jq)
-    execute(add_server_to_uptime_robot)
+    if not is_integration_env() or not env.get('wsginame') == 'dev.wsgi':
+        execute(add_server_to_uptime_robot)
 
 
 @task
