@@ -922,6 +922,9 @@ const Translations = {
           linkToTimeline: "Configurer le nombre phases souhaitées pour le débat",
           linkToLandingPage: "Configurer la description et l'image pour chaque phase"
         },
+        textMultimedia: {
+          title: "Texte & multi-média"
+        },
         successSave: "Les modules ont été enregistrés avec succès !",
         headerSuccessSave: "Le bandeau de la page d'accueil a été sauvegardé avec succès !"
       },
@@ -1881,6 +1884,9 @@ const Translations = {
           imageDescription: "The image must have a height of 500px and a width of 400px.",
           linkToTimeline: "Set the number of phases for the debate",
           linkToLandingPage: "Set the description and the image for each phase"
+        },
+        textMultimedia: {
+          title: "Text & multi-media"
         },
         successSave: "The modules have been saved with success!",
         headerSuccessSave: "The home page header have been saved with success!"

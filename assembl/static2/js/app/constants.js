@@ -186,6 +186,10 @@ export const ADMIN_MENU = {
       timeline: {
         title: 'administration.landingPage.timeline.title',
         sectionId: '2'
+      },
+      textMultimedia: {
+        title: 'administration.landingPage.textMultimedia.title',
+        sectionId: '3'
       }
     }
   },
