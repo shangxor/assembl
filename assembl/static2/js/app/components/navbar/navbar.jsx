@@ -14,11 +14,7 @@ import { withScreenWidth } from '../common/screenDimensions';
 import { connectedUserIsAdmin } from '../../utils/permissions';
 import SectionsQuery from '../../graphql/SectionsQuery.graphql';
 import DiscussionQuery from '../../graphql/DiscussionQuery.graphql';
-<<<<<<< HEAD
 import DiscussionPreferencesQuery from '../../graphql/DiscussionPreferencesQuery.graphql';
-import FlatNavbar from './FlatNavbar';
-=======
->>>>>>> Delete flatNavbar and only use Navbar
 import BurgerNavbar from './BurgerNavbar';
 import { APP_CONTAINER_MAX_WIDTH, APP_CONTAINER_PADDING } from '../../constants';
 import { snakeToCamel } from '../../utils/globalFunctions';
@@ -151,9 +147,9 @@ export class AssemblNavbar extends React.PureComponent<AssemblNavbarProps, Assem
   };
 
   render = () => {
-    const { logoSrc, logoLink, maxWidth, timeline, screenWidth, debate, phase, sectionData } = this.props;
+    const { logoLink, maxWidth, timeline, screenWidth, debate, phase, sectionData, logoData } = this.props;
     const { debateData } = debate;
-    const { logo, slug, isLargeLogo } = debateData;
+    const { slug, isLargeLogo } = debateData;
     const remainingWidth = maxWidth - this.state.leftWidth + this.state.languageMenuWidth;
     const sections = sectionData.sections;
     const flatWidth = this.state.flatWidth;
@@ -192,7 +188,7 @@ export class AssemblNavbar extends React.PureComponent<AssemblNavbarProps, Assem
               {!isLargeLogo && (
                 <BurgerNavbar timeline={timeline} elements={commonProps.elements} renderUserMenu={this.renderUserMenu} />
               )}
-              {!isLargeLogo && <Logo slug={slug} src={logoSrc} url={logoLink} />}
+              {!isLargeLogo && <Logo slug={slug} src={commonProps.logoSrc} url={logoLink} />}
               {!screenTooSmall && <NavigationMenu elements={commonProps.elements} />}
             </div>
             <div
