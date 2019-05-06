@@ -31,6 +31,8 @@ export type SentimentTypes = 'DISAGREE' | 'DONT_UNDERSTAND' | 'LIKE' | 'MORE_INF
 
 export type ExtractStates = 'PUBLISHED' | 'SUBMITTED';
 
+export type SynthesisTypes = 'fulltext_synthesis' | 'synthesis';
+
 export type LangStringEntryInput = {|
   // The unicode encoded string representation of the content.
   value?: ?string,
@@ -173,6 +175,8 @@ export type AllIdeasQueryQuery = {|
     //
     // Contribution is counted as either as a sentiment set, a post created.
     numContributors: ?number,
+    // The total number of votes (participations) for the vote session related to the idea.
+    numVotes: ?number,
     // The total number of children ideas (called "subideas") on the Idea or Thematic.
     numChildren: ?number,
     // Header image associated with the idea. A file metadata object, described by the Document object.
@@ -192,23 +196,6 @@ export type AllIdeasQueryQuery = {|
     // The ID of the object.
     id: string
   }
-|};
-
-export type AllLanguagePreferencesQueryVariables = {|
-  inLocale: string
-|};
-
-export type AllLanguagePreferencesQuery = {|
-  // The default discussion preferences. These are server wide settings, independent of the debate.
-  defaultPreferences: ?{|
-    // A list of LocalePreference metadata objects on the discussion which describe the languages supported by the debate.
-    languages: ?Array<?{|
-      // The ISO 639-1 language string of the locale. Ex. '"fr"'.
-      locale: ?string,
-      // The name of the locale, in the language of the locale given. Ex. French, if the given locale is '"en"'.
-      name: ?string
-    |}>
-  |}
 |};
 
 export type BrightMirrorFictionQueryVariables = {|
@@ -550,7 +537,11 @@ export type DiscussionPreferencesQuery = {|
       nativeName: ?string
     |}>,
     // A Boolean flag indicating whether the moderation is activated or not.
-    withModeration: ?boolean
+    withModeration: ?boolean,
+    // A Boolean flag indicating wheter the users have the possibility to translate the messages or not.
+    withTranslation: ?boolean,
+    // A string used to form the URL of the discussion.
+    slug: string
   |}
 |};
 
@@ -570,7 +561,7 @@ export type DiscussionPreferencesQueryQuery = {|
       // The MIME-Type of the file uploaded.
       mimeType: ?string
     |},
-    // The logo from the navbar. A file metadata object, described by the Document object.
+    // The site logo.A file metadata object, described by the Document object.
     logo: ?{|
       // The filename title.
       title: ?string,
@@ -1165,6 +1156,74 @@ export type LocalesQueryQuery = {|
     // The name of the locale, in a specifically given language.
     label: string
   |}>
+|};
+
+export type MultilingualSynthesisQueryQueryVariables = {|
+  id: string
+|};
+
+export type MultilingualSynthesisQueryQuery = {|
+  // The ID of the object
+  synthesisPost: ?(
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {
+        // The ID of the object.
+        id: string,
+        // Graphene Field modeling a relationship to a published synthesis.
+        publishesSynthesis: ?{|
+          // The ID of the object.
+          id: string,
+          // The type of Synthesis to be created
+          synthesisType: SynthesisTypes,
+          // A list of possible languages of the entity as LangStringEntry objects. The subject in various languages.
+          subjectEntries: ?Array<{|
+            // The ISO 639-1 locale code of the language the content represents.
+            localeCode: string,
+            // The unicode encoded string representation of the content.
+            value: ?string
+          |}>,
+          // A list of possible languages of the entity as LangStringEntry objects. The body in various languages.
+          bodyEntries: ?Array<{|
+            // The ISO 639-1 locale code of the language the content represents.
+            localeCode: string,
+            // The unicode encoded string representation of the content.
+            value: ?string
+          |}>,
+          // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+          img: ?{|
+            // A url to an image or a document to be attached.
+            externalUrl: ?string
+          |}
+        |}
+      }
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {})
 |};
 
 export type PostQueryVariables = {|
@@ -1929,7 +1988,7 @@ export type SynthesesQueryQuery = {|
     subject: ?string,
     // The creation date of the synthesis.
     creationDate: ?any,
-    // The img field is a header image URL/document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+    // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
     img: ?{|
       // A url to an image or a document to be attached.
       externalUrl: ?string
@@ -1950,46 +2009,16 @@ export type SynthesisQueryQueryVariables = {|
 export type SynthesisQueryQuery = {|
   // The ID of the object
   synthesisPost: ?(
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
     | {
         // The ID of the object.
         id: string,
@@ -1997,15 +2026,19 @@ export type SynthesisQueryQuery = {|
         publishesSynthesis: ?{|
           // The ID of the object.
           id: string,
+          // The type of Synthesis to be created
+          synthesisType: SynthesisTypes,
           // The subject of the synthesis.
           subject: ?string,
           // The introduction of the synthesis.
           introduction: ?string,
+          // The body of the full text synthesis.
+          body: ?string,
           // The conclusion of the synthesis.
           conclusion: ?string,
           // The creation date of the synthesis.
           creationDate: ?any,
-          // The img field is a header image URL/document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+          // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
           img: ?{|
             // A url to an image or a document to be attached.
             externalUrl: ?string
@@ -2145,82 +2178,25 @@ export type SynthesisQueryQuery = {|
           }>
         |}
       }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      }
-    | {
-        // The ID of the object.
-        id: string
-      })
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {}
+    | {})
 |};
 
 export type TabsConditionQueryVariables = {|
@@ -2257,7 +2233,8 @@ export type TabsConditionQuery = {|
 |};
 
 export type TagsQueryVariables = {|
-  filter?: ?string
+  filter?: ?string,
+  limit?: ?number
 |};
 
 export type TagsQuery = {|
@@ -2684,6 +2661,8 @@ export type VoteSessionQuery = {|
   voteSession: ?{|
     // The ID of the object.
     id: string,
+    // The count of participants on the vote session.
+    numParticipants: number,
     // A flag allowing users to view the current votes.
     seeCurrentVotes: boolean,
     // A list of possible languages of the entity as LangStringEntry objects. The Proposal section's title in various languages.
@@ -2721,32 +2700,8 @@ export type VoteSessionQuery = {|
       order: ?number,
       // The VoteResult object showing the status and result of a VoteSession on Idea.
       voteResults: {|
-        // The count of participants on the vote session.
-        numParticipants: number,
-        // The list of users who participated on the vote session. The length of the list matches the number of participants.
-        participants: Array<?{|
-          // The ID of the object.
-          id: string,
-          // The unique database identifier of the User.
-          userId: number,
-          // How the User is represented throughout the debate. If a user-name exists, this will be chosen. If it does not, the name is determined.
-          displayName: ?string,
-          // A boolean flag that shows if the User is deleted.
-          // If True, the User information is cleansed from the system, and the User can no longer log in.
-          isDeleted: ?boolean,
-          // A boolean flag describing if the User is a machine user or human user.
-          isMachine: ?boolean,
-          // The preferences of the User.
-          preferences: ?{|
-            // The harvesting Translation preference.
-            harvestingTranslation: ?{|
-              // The source locale of the translation.
-              localeFrom: string,
-              // The target locale of the translation.
-              localeInto: string
-            |}
-          |}
-        |}>
+        // The count of participants on the vote proposal.
+        numParticipants: number
       |},
       // The VoteSpecificationUnion placed on the Idea. This is the metadata describing the configuration of a VoteSession.
       modules: Array<?(
@@ -3324,10 +3279,12 @@ export type addTagMutationVariables = {|
 export type addTagMutation = {|
   // A mutation to add a Tag to a Post.
   addTag: ?{|
-    tags: ?Array<?{|
+    tag: ?{|
+      // The ID of the object.
+      id: string,
       // The value of the tag. This is not language dependent, but rather just unicode text.
       value: string
-    |}>
+    |}
   |}
 |};
 
@@ -4010,6 +3967,179 @@ export type createSectionMutation = {|
   |}
 |};
 
+export type createSynthesisMutationVariables = {|
+  image?: ?string,
+  lang?: ?string,
+  bodyEntries: Array<?LangStringEntryInput>,
+  subjectEntries: Array<?LangStringEntryInput>,
+  synthesisType: SynthesisTypes
+|};
+
+export type createSynthesisMutation = {|
+  // A mutation that enables a Synthesis to be created.
+  createSynthesis: ?{|
+    synthesisPost: ?{|
+      // The ID of the object.
+      id: string,
+      // Graphene Field modeling a relationship to a published synthesis.
+      publishesSynthesis: ?{|
+        // The ID of the object.
+        id: string,
+        // The type of Synthesis to be created
+        synthesisType: SynthesisTypes,
+        // The subject of the synthesis.
+        subject: ?string,
+        // The introduction of the synthesis.
+        introduction: ?string,
+        // The body of the full text synthesis.
+        body: ?string,
+        // The conclusion of the synthesis.
+        conclusion: ?string,
+        // The creation date of the synthesis.
+        creationDate: ?any,
+        // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+        img: ?{|
+          // A url to an image or a document to be attached.
+          externalUrl: ?string
+        |},
+        // This is the list of ideas related to the synthesis.
+        ideas: ?Array<?{
+          // The ID of the object.
+          id: string,
+          // A list of Relay.Node ID's representing the parents Ideas of the Idea.
+          ancestors: ?Array<?string>,
+          // The title of the Idea, often shown in the Idea header itself.
+          title: ?string,
+          // A Synthesis title in a given language.
+          synthesisTitle: ?string,
+          // The IdeaUnion between an Idea or a Thematic. This can be used to query specific fields unique to the type of Idea.
+          live: ?{
+            // The ID of the object.
+            id: string,
+            // The order of the Idea, Thematic, Question in the idea tree.
+            order: ?number,
+            // The total number of active posts on that idea (excludes deleted posts).
+            numPosts: ?number,
+            // The total number of users who contributed to the Idea/Thematic/Question.
+            //
+            // Contribution is counted as either as a sentiment set, a post created.
+            numContributors: ?number,
+            // A list of IdeaMessageColumn objects, if any set, on an Idea.
+            messageColumns: ?Array<?{|
+              // A CSS color that will be used to theme the column.
+              color: ?string,
+              // A Synthesis done on the column, of type Post.
+              columnSynthesis: ?{|
+                // The ID of the object.
+                id: string,
+                // A Subject of the post in a given language.
+                subject: ?string,
+                // A Body of the post (the main content of the post). in a given language.
+                body: ?string,
+                // The SentimentType that the API calling User has on the Post, if any.
+                mySentiment: ?SentimentTypes,
+                // A list of SentimentCounts which counts each sentiment expressed. These include:
+                //
+                // Like,
+                //
+                // Agree,
+                //
+                // Disagree,
+                //
+                // Like,
+                //
+                // Don't Understand
+                //
+                // More Info
+                //
+                sentimentCounts: ?{|
+                  // The number of Sentiments disagreeing with the post.
+                  disagree: ?number,
+                  // The number of Sentiments expressing "dont_understand" on the Post.
+                  dontUnderstand: ?number,
+                  // The number of Sentiments expressed "like" on the post.
+                  like: ?number,
+                  // The number of Sentiments requesting "more_info" on the post.
+                  moreInfo: ?number
+                |}
+              |},
+              // The order of the message column in the Idea/Thematic.
+              index: ?number,
+              // The unique classification identifier of the MessageColumn. All content who will be put under this column must have this classifer.
+              messageClassifier: string,
+              // A The name of the column in a given language.
+              name: ?string,
+              // The number of posts contributed to only this column.
+              numPosts: ?number,
+              // A The title of the column in a given language.
+              title: ?string
+            |}>,
+            // Type of view for this idea: survey, thread, messageColumns, voteSession, brightMirror.
+            messageViewOverride: ?string,
+            // Header image associated with the idea. A file metadata object, described by the Document object.
+            img: ?{|
+              // A url to an image or a document to be attached.
+              externalUrl: ?string
+            |},
+            // A list of all Posts under the Idea. These include posts of the subIdeas.
+            posts: ?{|
+              edges: Array<?{|
+                // The item at the end of the edge
+                node: ?{|
+                  // A list of SentimentCounts which counts each sentiment expressed. These include:
+                  //
+                  // Like,
+                  //
+                  // Agree,
+                  //
+                  // Disagree,
+                  //
+                  // Like,
+                  //
+                  // Don't Understand
+                  //
+                  // More Info
+                  //
+                  sentimentCounts: ?{|
+                    // The number of Sentiments expressed "like" on the post.
+                    like: ?number,
+                    // The number of Sentiments disagreeing with the post.
+                    disagree: ?number,
+                    // The number of Sentiments expressing "dont_understand" on the Post.
+                    dontUnderstand: ?number,
+                    // The number of Sentiments requesting "more_info" on the post.
+                    moreInfo: ?number
+                  |},
+                  // A graphene Field containing the state of the publication of a certain post. The options are:
+                  // DRAFT,
+                  //
+                  // SUBMITTED_IN_EDIT_GRACE_PERIOD,
+                  //
+                  // SUBMITTED_AWAITING_MODERATION,
+                  //
+                  // PUBLISHED,
+                  //
+                  // MODERATED_TEXT_ON_DEMAND,
+                  //
+                  // MODERATED_TEXT_NEVER_AVAILABLE,
+                  //
+                  // DELETED_BY_USER,
+                  //
+                  // DELETED_BY_ADMIN,
+                  //
+                  // WIDGET_SCOPED
+                  //
+                  publicationState: ?PublicationStates
+                |}
+              |}>
+            |}
+          }
+        }>
+      |}
+    |}
+  |}
+|};
+
 export type createTextFieldMutationVariables = {|
   lang?: ?string,
   titleEntries: Array<?LangStringEntryInput>,
@@ -4316,6 +4446,17 @@ export type deleteSentimentMutation = {|
   |}
 |};
 
+export type deleteSynthesisMutationVariables = {|
+  id: string
+|};
+
+export type deleteSynthesisMutation = {|
+  // A mutation that enables the deletion of a Synthesis.
+  deleteSynthesis: ?{|
+    success: ?boolean
+  |}
+|};
+
 export type deleteTextFieldMutationVariables = {|
   id: string
 |};
@@ -4372,10 +4513,7 @@ export type removeTagMutationVariables = {|
 export type removeTagMutation = {|
   // A mutation to create a Tag association to a Post.
   removeTag: ?{|
-    tags: ?Array<?{|
-      // The value of the tag. This is not language dependent, but rather just unicode text.
-      value: string
-    |}>
+    success: ?boolean
   |}
 |};
 
@@ -4512,8 +4650,11 @@ export type updateDiscussionPhaseMutation = {|
 export type updateDiscussionPreferenceMutationVariables = {|
   languages?: ?Array<?string>,
   withModeration?: ?boolean,
+  withTranslation?: ?boolean,
   tabTitle?: ?string,
-  favicon?: ?string
+  favicon?: ?string,
+  slug?: ?string,
+  logo?: ?string
 |};
 
 export type updateDiscussionPreferenceMutation = {|
@@ -4526,7 +4667,9 @@ export type updateDiscussionPreferenceMutation = {|
         locale: ?string
       |}>,
       // A Boolean flag indicating whether the moderation is activated or not.
-      withModeration: ?boolean
+      withModeration: ?boolean,
+      // A string used to form the URL of the discussion.
+      slug: string
     |}
   |}
 |};
@@ -5700,6 +5843,226 @@ export type updateSectionMutation = {|
       sectionType: string,
       // The order of the Sections on the top of the page.
       order: number
+    |}
+  |}
+|};
+
+export type updateShareCountMutationVariables = {|
+  nodeId: string
+|};
+
+export type updateShareCountMutation = {|
+  // A mutation called when a user shares a post/idea.
+  updateShareCount: ?{|
+    node: ?(
+      | {
+          // The ID of the object.
+          id: string
+        }
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {
+          // The ID of the object.
+          id: string
+        }
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {}
+      | {})
+  |}
+|};
+
+export type updateSynthesisMutationVariables = {|
+  id: string,
+  image?: ?string,
+  lang: string,
+  bodyEntries: Array<?LangStringEntryInput>,
+  subjectEntries: Array<?LangStringEntryInput>
+|};
+
+export type updateSynthesisMutation = {|
+  // A mutation that enables a Synthesis to be updated.
+  updateSynthesis: ?{|
+    synthesisPost: ?{|
+      // The ID of the object.
+      id: string,
+      // Graphene Field modeling a relationship to a published synthesis.
+      publishesSynthesis: ?{|
+        // The ID of the object.
+        id: string,
+        // The type of Synthesis to be created
+        synthesisType: SynthesisTypes,
+        // The subject of the synthesis.
+        subject: ?string,
+        // The introduction of the synthesis.
+        introduction: ?string,
+        // The body of the full text synthesis.
+        body: ?string,
+        // The conclusion of the synthesis.
+        conclusion: ?string,
+        // The creation date of the synthesis.
+        creationDate: ?any,
+        // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+        img: ?{|
+          // A url to an image or a document to be attached.
+          externalUrl: ?string
+        |},
+        // This is the list of ideas related to the synthesis.
+        ideas: ?Array<?{
+          // The ID of the object.
+          id: string,
+          // A list of Relay.Node ID's representing the parents Ideas of the Idea.
+          ancestors: ?Array<?string>,
+          // The title of the Idea, often shown in the Idea header itself.
+          title: ?string,
+          // A Synthesis title in a given language.
+          synthesisTitle: ?string,
+          // The IdeaUnion between an Idea or a Thematic. This can be used to query specific fields unique to the type of Idea.
+          live: ?{
+            // The ID of the object.
+            id: string,
+            // The order of the Idea, Thematic, Question in the idea tree.
+            order: ?number,
+            // The total number of active posts on that idea (excludes deleted posts).
+            numPosts: ?number,
+            // The total number of users who contributed to the Idea/Thematic/Question.
+            //
+            // Contribution is counted as either as a sentiment set, a post created.
+            numContributors: ?number,
+            // A list of IdeaMessageColumn objects, if any set, on an Idea.
+            messageColumns: ?Array<?{|
+              // A CSS color that will be used to theme the column.
+              color: ?string,
+              // A Synthesis done on the column, of type Post.
+              columnSynthesis: ?{|
+                // The ID of the object.
+                id: string,
+                // A Subject of the post in a given language.
+                subject: ?string,
+                // A Body of the post (the main content of the post). in a given language.
+                body: ?string,
+                // The SentimentType that the API calling User has on the Post, if any.
+                mySentiment: ?SentimentTypes,
+                // A list of SentimentCounts which counts each sentiment expressed. These include:
+                //
+                // Like,
+                //
+                // Agree,
+                //
+                // Disagree,
+                //
+                // Like,
+                //
+                // Don't Understand
+                //
+                // More Info
+                //
+                sentimentCounts: ?{|
+                  // The number of Sentiments disagreeing with the post.
+                  disagree: ?number,
+                  // The number of Sentiments expressing "dont_understand" on the Post.
+                  dontUnderstand: ?number,
+                  // The number of Sentiments expressed "like" on the post.
+                  like: ?number,
+                  // The number of Sentiments requesting "more_info" on the post.
+                  moreInfo: ?number
+                |}
+              |},
+              // The order of the message column in the Idea/Thematic.
+              index: ?number,
+              // The unique classification identifier of the MessageColumn. All content who will be put under this column must have this classifer.
+              messageClassifier: string,
+              // A The name of the column in a given language.
+              name: ?string,
+              // The number of posts contributed to only this column.
+              numPosts: ?number,
+              // A The title of the column in a given language.
+              title: ?string
+            |}>,
+            // Type of view for this idea: survey, thread, messageColumns, voteSession, brightMirror.
+            messageViewOverride: ?string,
+            // Header image associated with the idea. A file metadata object, described by the Document object.
+            img: ?{|
+              // A url to an image or a document to be attached.
+              externalUrl: ?string
+            |},
+            // A list of all Posts under the Idea. These include posts of the subIdeas.
+            posts: ?{|
+              edges: Array<?{|
+                // The item at the end of the edge
+                node: ?{|
+                  // A list of SentimentCounts which counts each sentiment expressed. These include:
+                  //
+                  // Like,
+                  //
+                  // Agree,
+                  //
+                  // Disagree,
+                  //
+                  // Like,
+                  //
+                  // Don't Understand
+                  //
+                  // More Info
+                  //
+                  sentimentCounts: ?{|
+                    // The number of Sentiments expressed "like" on the post.
+                    like: ?number,
+                    // The number of Sentiments disagreeing with the post.
+                    disagree: ?number,
+                    // The number of Sentiments expressing "dont_understand" on the Post.
+                    dontUnderstand: ?number,
+                    // The number of Sentiments requesting "more_info" on the post.
+                    moreInfo: ?number
+                  |},
+                  // A graphene Field containing the state of the publication of a certain post. The options are:
+                  // DRAFT,
+                  //
+                  // SUBMITTED_IN_EDIT_GRACE_PERIOD,
+                  //
+                  // SUBMITTED_AWAITING_MODERATION,
+                  //
+                  // PUBLISHED,
+                  //
+                  // MODERATED_TEXT_ON_DEMAND,
+                  //
+                  // MODERATED_TEXT_NEVER_AVAILABLE,
+                  //
+                  // DELETED_BY_USER,
+                  //
+                  // DELETED_BY_ADMIN,
+                  //
+                  // WIDGET_SCOPED
+                  //
+                  publicationState: ?PublicationStates
+                |}
+              |}>
+            |}
+          }
+        }>
+      |}
     |}
   |}
 |};
@@ -7247,6 +7610,37 @@ export type langStringEntryFragment = {|
   value: ?string
 |};
 
+export type MultilingualSynthesisPostFragment = {|
+  // The ID of the object.
+  id: string,
+  // Graphene Field modeling a relationship to a published synthesis.
+  publishesSynthesis: ?{|
+    // The ID of the object.
+    id: string,
+    // The type of Synthesis to be created
+    synthesisType: SynthesisTypes,
+    // A list of possible languages of the entity as LangStringEntry objects. The subject in various languages.
+    subjectEntries: ?Array<?{|
+      // The ISO 639-1 locale code of the language the content represents.
+      localeCode: string,
+      // The unicode encoded string representation of the content.
+      value: ?string
+    |}>,
+    // A list of possible languages of the entity as LangStringEntry objects. The body in various languages.
+    bodyEntries: ?Array<?{|
+      // The ISO 639-1 locale code of the language the content represents.
+      localeCode: string,
+      // The unicode encoded string representation of the content.
+      value: ?string
+    |}>,
+    // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+    img: ?{|
+      // A url to an image or a document to be attached.
+      externalUrl: ?string
+    |}
+  |}
+|};
+
 export type PostFragment = {|
   // The ID of the object.
   id: string,
@@ -7594,6 +7988,166 @@ export type SentimentCountsFragment = {|
   like: ?number,
   // The number of Sentiments requesting "more_info" on the post.
   moreInfo: ?number
+|};
+
+export type SynthesisPostFragment = {|
+  // The ID of the object.
+  id: string,
+  // Graphene Field modeling a relationship to a published synthesis.
+  publishesSynthesis: ?{|
+    // The ID of the object.
+    id: string,
+    // The type of Synthesis to be created
+    synthesisType: SynthesisTypes,
+    // The subject of the synthesis.
+    subject: ?string,
+    // The introduction of the synthesis.
+    introduction: ?string,
+    // The body of the full text synthesis.
+    body: ?string,
+    // The conclusion of the synthesis.
+    conclusion: ?string,
+    // The creation date of the synthesis.
+    creationDate: ?any,
+    // This is a header image document object that will be visible on the Synthesis view's header.A file metadata object, described by the Document object.
+    img: ?{|
+      // A url to an image or a document to be attached.
+      externalUrl: ?string
+    |},
+    // This is the list of ideas related to the synthesis.
+    ideas: ?Array<?{
+      // The ID of the object.
+      id: string,
+      // A list of Relay.Node ID's representing the parents Ideas of the Idea.
+      ancestors: ?Array<?string>,
+      // The title of the Idea, often shown in the Idea header itself.
+      title: ?string,
+      // A Synthesis title in a given language.
+      synthesisTitle: ?string,
+      // The IdeaUnion between an Idea or a Thematic. This can be used to query specific fields unique to the type of Idea.
+      live: ?{
+        // The ID of the object.
+        id: string,
+        // The order of the Idea, Thematic, Question in the idea tree.
+        order: ?number,
+        // The total number of active posts on that idea (excludes deleted posts).
+        numPosts: ?number,
+        // The total number of users who contributed to the Idea/Thematic/Question.
+        //
+        // Contribution is counted as either as a sentiment set, a post created.
+        numContributors: ?number,
+        // A list of IdeaMessageColumn objects, if any set, on an Idea.
+        messageColumns: ?Array<?{|
+          // A CSS color that will be used to theme the column.
+          color: ?string,
+          // A Synthesis done on the column, of type Post.
+          columnSynthesis: ?{|
+            // The ID of the object.
+            id: string,
+            // A Subject of the post in a given language.
+            subject: ?string,
+            // A Body of the post (the main content of the post). in a given language.
+            body: ?string,
+            // The SentimentType that the API calling User has on the Post, if any.
+            mySentiment: ?SentimentTypes,
+            // A list of SentimentCounts which counts each sentiment expressed. These include:
+            //
+            // Like,
+            //
+            // Agree,
+            //
+            // Disagree,
+            //
+            // Like,
+            //
+            // Don't Understand
+            //
+            // More Info
+            //
+            sentimentCounts: ?{|
+              // The number of Sentiments disagreeing with the post.
+              disagree: ?number,
+              // The number of Sentiments expressing "dont_understand" on the Post.
+              dontUnderstand: ?number,
+              // The number of Sentiments expressed "like" on the post.
+              like: ?number,
+              // The number of Sentiments requesting "more_info" on the post.
+              moreInfo: ?number
+            |}
+          |},
+          // The order of the message column in the Idea/Thematic.
+          index: ?number,
+          // The unique classification identifier of the MessageColumn. All content who will be put under this column must have this classifer.
+          messageClassifier: string,
+          // A The name of the column in a given language.
+          name: ?string,
+          // The number of posts contributed to only this column.
+          numPosts: ?number,
+          // A The title of the column in a given language.
+          title: ?string
+        |}>,
+        // Type of view for this idea: survey, thread, messageColumns, voteSession, brightMirror.
+        messageViewOverride: ?string,
+        // Header image associated with the idea. A file metadata object, described by the Document object.
+        img: ?{|
+          // A url to an image or a document to be attached.
+          externalUrl: ?string
+        |},
+        // A list of all Posts under the Idea. These include posts of the subIdeas.
+        posts: ?{|
+          edges: Array<?{|
+            // The item at the end of the edge
+            node: ?{|
+              // A list of SentimentCounts which counts each sentiment expressed. These include:
+              //
+              // Like,
+              //
+              // Agree,
+              //
+              // Disagree,
+              //
+              // Like,
+              //
+              // Don't Understand
+              //
+              // More Info
+              //
+              sentimentCounts: ?{|
+                // The number of Sentiments expressed "like" on the post.
+                like: ?number,
+                // The number of Sentiments disagreeing with the post.
+                disagree: ?number,
+                // The number of Sentiments expressing "dont_understand" on the Post.
+                dontUnderstand: ?number,
+                // The number of Sentiments requesting "more_info" on the post.
+                moreInfo: ?number
+              |},
+              // A graphene Field containing the state of the publication of a certain post. The options are:
+              // DRAFT,
+              //
+              // SUBMITTED_IN_EDIT_GRACE_PERIOD,
+              //
+              // SUBMITTED_AWAITING_MODERATION,
+              //
+              // PUBLISHED,
+              //
+              // MODERATED_TEXT_ON_DEMAND,
+              //
+              // MODERATED_TEXT_NEVER_AVAILABLE,
+              //
+              // DELETED_BY_USER,
+              //
+              // DELETED_BY_ADMIN,
+              //
+              // WIDGET_SCOPED
+              //
+              publicationState: ?PublicationStates
+            |}
+          |}>
+        |}
+      }
+    }>
+  |}
 |};
 
 export type textFieldFragment = {|
